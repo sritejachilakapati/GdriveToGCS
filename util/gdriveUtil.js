@@ -1,3 +1,4 @@
+const fs = require('fs');
 const drive = require('./gdriveClient');
 
 class DriveUtil {
@@ -11,11 +12,21 @@ class DriveUtil {
   }
 
   async downloadFile(fileId) {
-    const file = await drive.files.get({
+    const filePath = '../downloads/downloadedImage.png';
+    const fileStream = fs.createWriteStream(filePath);
+    drive.files.get({
       fileId: fileId,
       alt: "media"
-    });
-    return file;
+    })
+    .on('end', function () {
+      console.log('Done');
+      return filePath;
+    })
+    .on('error', function (err) {
+      console.log('Error during download', err);
+      return null;
+    })  
+    .pipe(fileStream);
   }
 }
 
